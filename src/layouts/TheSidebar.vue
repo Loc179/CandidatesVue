@@ -1,31 +1,28 @@
 <script setup>
-    import { ref, route } from 'vue';
+    import { ref } from 'vue';
     import { sidebarItems } from '@/configs/sidebar';
 
     const visible = ref(false);
 
+    // Trạng thái đóng/mở của Sidebar
     const isCollapsed = () => {
         if(visible.value) visible.value = false;
         else visible.value = true;
     }
 
-    const activeRoute = ref('');
-    const clickSidebarItem = (item) => {
-        activeRoute.value = item.route;
-    }
 </script>
 
 <template>
     <div class="sidebar" :class="{collapsed: visible}">
         <div class="sidebar-container">
-            <div v-for="item in sidebarItems" :key="item.route" @click="clickSidebarItem(item)" :class="{active: activeRoute===item.route}" class="sidebar-item sidebar-recruiment display-flex align-items-center">
+            <router-link v-for="item in sidebarItems" :key="item.route" :to="item.route" active-class="active" class="sidebar-item sidebar-recruiment display-flex align-items-center">
                 <div :class="[item.icon, 'icon']"></div>
                 <div class="sidebar-item-text">{{ item.name }}</div>
-            </div>
+            </router-link>
             
         </div>
-        <div class="bottom-area pointer" id="toggleSidebar">
-            <div class="display-flex align-items-center" @click="isCollapsed">
+        <div class="bottom-area pointer" id="toggleSidebar" @click="isCollapsed">
+            <div class="display-flex align-items-center">
                 <div class="icon icon-sb-left"></div>
                 <div class="sidebar-text-content">Thu gọn</div>
             </div>
@@ -71,9 +68,6 @@
     transform: rotate(180deg);
 }
 
-.sidebar .sidebar-container {
-}
-
 .sidebar .sidebar-item {
     height: 44px;
     padding: 4px 16px;
@@ -81,6 +75,7 @@
     color: white;
     box-sizing: border-box;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .sidebar-item.active {
@@ -115,5 +110,6 @@
     margin-left: 16px;
     font-size: 16px;
     color: white;
+    white-space: nowrap;
 }
 </style>

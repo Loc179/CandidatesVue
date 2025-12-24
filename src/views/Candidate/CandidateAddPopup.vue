@@ -1,6 +1,7 @@
 <script setup>
-    import { reactive } from 'vue';
+    import { reactive, ref } from 'vue';
     import { validateCandidate } from '@/utils/validate';
+    // import BaseSelect from '@/components/controls/BaseSelect.vue';
     
     const props = defineProps({
         visible: Boolean,
@@ -21,6 +22,68 @@
         ApplyDate: '',
     });
 
+    // Refs for file inputs
+    const cvFileInput = ref(null);
+    const avatarFileInput = ref(null);
+
+    // Reactive data for files
+    const cvFile = ref(null);
+    const avatarFile = ref(null);
+    const avatarPreview = ref(null);
+
+    // Handle CV file selection
+    const handleCvFileSelect = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Chỉ chấp nhận file .doc, .docx, .pdf, .jpg, .jpeg, .png');
+                return;
+            }
+            // Validate file size (15MB)
+            if (file.size > 15 * 1024 * 1024) {
+                alert('Dung lượng file phải nhỏ hơn 15MB');
+                return;
+            }
+            cvFile.value = file;
+        }
+    };
+
+    // Handle avatar file selection
+    const handleAvatarFileSelect = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Chỉ chấp nhận file ảnh .jpg, .jpeg, .png');
+                return;
+            }
+            // Validate file size (15MB)
+            if (file.size > 15 * 1024 * 1024) {
+                alert('Dung lượng file phải nhỏ hơn 15MB');
+                return;
+            }
+            avatarFile.value = file;
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                avatarPreview.value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Trigger file inputs
+    const triggerCvUpload = () => {
+        cvFileInput.value.click();
+    };
+
+    const triggerAvatarUpload = () => {
+        avatarFileInput.value.click();
+    };
+
     const submitForm = () => {
         const errors = validateCandidate(candidate);
         if (errors) {
@@ -30,6 +93,8 @@
 
         emit('submit', {
             ...candidate,
+            FileCVID: cvFile.value,
+            Avatar: avatarFile.value,
         })
     }
 
@@ -45,16 +110,24 @@
             </div>
 
             <div class="popup-content">
-                <div class="upload-area">
+                <div class="upload-area" @click="triggerCvUpload">
                     <div class="upload-text">Kéo thả hoặc bấm vào đây để tải CV lên</div>
                     <div class="upload-subtext">
                         Chấp nhận file .doc, .docx, .pdf, .jpg, .jpeg, .png (Dung lượng &lt; hơn 15 Mb)
                     </div>
+                    <div v-if="cvFile" class="file-info">
+                        File đã chọn: {{ cvFile.name }}
+                    </div>
                 </div>
+                <input ref="cvFileInput" type="file" @change="handleCvFileSelect" accept=".doc,.docx,.pdf,.jpg,.jpeg,.png" style="display: none;">
 
                 <div class="candidate-info">
                     <div class="avatar-section">
-                        <div class="avatar-placeholder">Ảnh</div>
+                        <div v-if="avatarPreview" class="avatar-preview" @click="triggerAvatarUpload">
+                            <img :src="avatarPreview" alt="Avatar" class="avatar-image">
+                        </div>
+                        <div v-else class="avatar-placeholder" @click="triggerAvatarUpload">Ảnh</div>
+                        <input ref="avatarFileInput" type="file" @change="handleAvatarFileSelect" accept=".jpg,.jpeg,.png" style="display: none;">
                     </div>
 
                     <div class="form-section">
@@ -184,9 +257,9 @@
                             <div class="form-row">
                                 <label class="label">Thời gian</label>
                                 <div class="date-range">
-                                    <input type="month" class="input-field" placeholder="MM/yyyy">
+                                    <input type="date" class="input-field" placeholder="dd/MM/yyyy">
                                     <span>-</span>
-                                    <input type="month" class="input-field" placeholder="MM/yyyy">
+                                    <input type="date" class="input-field" placeholder="dd/MM/yyyy">
                                 </div>
                             </div>
                             <div class="form-row">
@@ -311,7 +384,6 @@
         border-radius: 8px;
         padding: 30px;
         text-align: center;
-        background: #f8fbff;
         margin-bottom: 20px;
         cursor: pointer;
         transition: background 0.2s;
@@ -343,8 +415,8 @@
     }
 
     .avatar-placeholder {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
         border: 2px dashed #d9d9d9;
         border-radius: 50%;
         display: flex;
@@ -357,6 +429,27 @@
 
     .avatar-placeholder:hover {
         border-color: #1890ff;
+    }
+
+    .avatar-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid #1890ff;
+    }
+
+    .avatar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .file-info {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #1890ff;
     }
 
     .form-section {

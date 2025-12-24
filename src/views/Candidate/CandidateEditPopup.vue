@@ -1,6 +1,10 @@
 <script setup>
-    import {reactive, watch} from 'vue'
+    import {reactive, watch, ref} from 'vue'
     import { validateCandidate } from '@/utils/validate'
+    import { useFormat } from '@/utils/format';
+
+    const { getInitialsFirstLast, getAvatarColorFromName } = useFormat();
+
     const props = defineProps({
         visible: Boolean,
         candidate: Object,
@@ -9,6 +13,13 @@
     const emit = defineEmits(['close', 'submitEdit']);
 
     const candidateData = reactive({});
+
+    // Refs for file inputs
+    const avatarFileInput = ref(null);
+
+    // Reactive data for files
+    const avatarFile = ref(null);
+    const avatarPreview = ref(null);
 
     watch(
         () => props.candidate,
@@ -20,6 +31,36 @@
         { immediate: true }
     )
 
+    // Handle avatar file selection
+    const handleAvatarFileSelect = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Chỉ chấp nhận file ảnh .jpg, .jpeg, .png');
+                return;
+            }
+            // Validate file size (15MB)
+            if (file.size > 15 * 1024 * 1024) {
+                alert('Dung lượng file phải nhỏ hơn 15MB');
+                return;
+            }
+            avatarFile.value = file;
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                avatarPreview.value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Trigger file inputs
+    const triggerAvatarUpload = () => {
+        avatarFileInput.value.click();
+    };
+
     const submitFormEdit = () => {
         const errors = validateCandidate(candidateData);
         if (errors) {
@@ -29,6 +70,7 @@
 
         emit('submitEdit', {
             ...candidateData,
+            Avatar: avatarFile.value,
         })
     }
 </script>
@@ -44,7 +86,11 @@
             <div class="popup-content">
                 <div class="candidate-info">
                     <div class="avatar-section">
-                        <div class="avatar-placeholder">Ảnh</div>
+                        <div v-if="avatarPreview" class="avatar-preview" @click="triggerAvatarUpload">
+                            <img :src="avatarPreview" alt="Avatar" class="avatar-image">
+                        </div>
+                        <div v-else class="avatar-placeholder" @click="triggerAvatarUpload" :style="{'background-color': getAvatarColorFromName(candidateData.CandidateName)}">{{ getInitialsFirstLast(candidateData.CandidateName) }}</div>
+                        <input ref="avatarFileInput" type="file" @change="handleAvatarFileSelect" accept=".jpg,.jpeg,.png" style="display: none;">
                     </div>
 
                     <div class="form-section">
@@ -428,20 +474,36 @@
     }
 
     .avatar-placeholder {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
         border: 2px dashed #d9d9d9;
         border-radius: 50%;
+        color: #fff;
+        font-size: 32px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #999;
         cursor: pointer;
         transition: border-color 0.2s;
     }
 
     .avatar-placeholder:hover {
         border-color: #1890ff;
+    }
+
+    .avatar-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid #1890ff;
+    }
+
+    .avatar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .form-section {
@@ -748,15 +810,6 @@
         font-weight: 550;
     }
 
-
-    /* Edit - Education */
-    .education-content {
-
-    }
-
-    .education-info {
-
-    }
 
     .education-info-row {
         display: flex;

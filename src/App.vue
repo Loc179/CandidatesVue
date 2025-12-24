@@ -1,7 +1,7 @@
 <script setup>
     import TheHeader from './layouts/TheHeader.vue';
     import TheSidebar from './layouts/TheSidebar.vue';
-    import CandidateList from './views/Candidate/CandidateList.vue';
+    // import CandidateList from '@/views/candidate/CandidateList.vue';
 </script>
 
 <template>
@@ -10,7 +10,7 @@
     <div class="content display-flex">
       <TheSidebar/>
       <div class="main-content flex">
-        <CandidateList/>
+        <router-view></router-view>
       </div>
     </div>
   </div>

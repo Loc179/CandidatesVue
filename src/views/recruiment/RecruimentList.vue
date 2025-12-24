@@ -1,15 +1,13 @@
 <script setup>
     import { ref, computed, watch } from 'vue';
-    import CandidateAddPopup from '@/views/candidate/CandidateAddPopup.vue';
-    import CandidateEditPopup from '@/views/candidate/CandidateEditPopup.vue';
-    // import BaseTable from '@/components/controls/BaseTable.vue';
-    import { GenderLabels, OfferStatusLabels, RecruitmentStatusLabels } from '@/configs/enums';
+    import { candidates } from '@/data/candidates';
+    // import { GenderLabels, OfferStatusLabels, RecruitmentStatusLabels } from '@/configs/enums';
+    import BaseTable from '@/components/controls/BaseTable.vue';
+    import { fieldsCandidate } from '@/configs/enums';
     import { useFormat } from '@/utils/format';
 
-    const { formatDisplay, getInitialsFirstLast, formatDate, getAvatarColorFromName } = useFormat();
+    const { formatDisplay, getInitialsFirstLast, getAvatarColorFromName } = useFormat();
 
-    const STORAGE_KEY = 'candidates';
-    const candidates = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
     const candidatesData = ref([...candidates]);
     const pageSize = ref(10);
@@ -52,86 +50,12 @@
         currentPage.value = 1;
     })
 
-
-    /* POPUP ADD CANDIDATE */
-    const showAddPopup = ref(false)
-
-    const openAddPopup = () => {
-        showAddPopup.value = true
-    }
-
-    const closeAddPopup = () => {
-        showAddPopup.value = false
-    }
-
-    const addCandidate = (newCandidate) => {
-        candidatesData.value.unshift(newCandidate);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(candidatesData.value))
-        showAddPopup.value = false;
-    }
-
-
-    /* POPUP EDIT CANDIDATE */
-    const showEditPopup = ref(false)
-
-    const selectedCandidate = ref(null)
-    const handleEditClick = (candidate) => {
-        selectedCandidate.value = { ...candidate }
-        showEditPopup.value = true
-    }
-
-    const closeEditPopup = () => {
-        showEditPopup.value = false
-    }
-
-    const editCandidate = (candidate) => {
-        const index = candidatesData.value.findIndex(
-            c => c.id === candidate.id
-        );
-
-        if (index !== -1) {
-            candidatesData.value[index] = candidate;
-        }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(candidatesData.value))
-        showEditPopup.value = false;
-    }
-
-    // Tạo ID mới cho Candiate
-    function generateCandidateId() {
-
-        if (candidatesData.value.length === 0) return 1;
-
-        const maxId = Math.max(
-            ...candidatesData.value.map(c => Number(c.CandidateID) || 0)
-        );
-
-        return maxId + 1;
-    }
-
     const endRecord = computed(() => {
         return currentPage.value * pageSize.value < totalRecords.value ? currentPage.value * pageSize.value : totalRecords.value;
     })
 
-    // Tick all checkbox
-    const selectedIds = ref([]);
-    const selectAll = computed({
-        get() {
-            // Khi TẤT CẢ item đều được chọn → checkbox select-all = true
-            return (
-                displayCandidates.value.length > 0 &&
-                selectedIds.value.length === displayCandidates.value.length
-            )
-        },
-        set(checked) {
-            if (checked) {
-                // Chọn tất cả
-                selectedIds.value = displayCandidates.value.map(c => c.CandidateID)
-            } else {
-                // Bỏ chọn tất cả
-                selectedIds.value = []
-            }
-        }
-    });
+    const rows = displayCandidates;
+    const fields = fieldsCandidate;
 
 </script>
 
@@ -177,7 +101,7 @@
                 </div>
                 <div class="candidate-list-container">
                     <div class="candidate-list">
-                        <table class="candidate-table" id="candidate-table-body">
+                        <!-- <table class="candidate-table" id="candidate-table-body">
                             <thead>
                                 <tr>
                                     <th style="width: 50px; text-align: center;">
@@ -214,7 +138,6 @@
                                     <th>Cộng tác viên</th>
                                     <th>Ngày tiếp nhận</th>
                                     <th>Trạng thái mời nhận việc</th>
-                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -271,7 +194,33 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </table> -->
+                        
+                        <BaseTable
+                            :fields="fields"
+                            :rows="rows"
+                        >
+                            <template #header-select="{ field }">
+                                <input :value="field" class="select-item" type="checkbox">
+                            </template>
+                            <template #select="{ row }">
+                                <input :value="row.CandidateID" class="select-item" type="checkbox">
+                            </template>
+                            <template #CandidateName="{ row, value }">
+                                <div class="fullname">
+                                    <div class="avatar" :style="{ backgroundColor: getAvatarColorFromName(value) }">
+                                        {{getInitialsFirstLast(value)}}
+                                    </div>
+                                    <div>
+                                        {{formatDisplay(value)}}
+                                        <div v-if="row.IsEmployee" class="display-flex align-items-center" style="margin-top: 4px">
+                                            <div class="icon icon-tick"></div>
+                                            <div style="color: #4fbd5b; margin-left: 4px">Nhân viên</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </BaseTable>
                     </div>
                 </div>
                 <div class="app-page display-flex align-items-center justify-content-between">
@@ -291,7 +240,7 @@
                         <div class="control-paging display-flex align-items-center">
                             <div class="text-paging">
                                 <span class="start">{{ (currentPage - 1) * pageSize + 1 }}</span>
-                                <span> - </span>
+                                <span>-</span>
                                 <span class="end">{{ endRecord }}</span>
                                 <span class="nowrap">bản ghi</span>
                             </div>
@@ -304,8 +253,6 @@
             </div>
         </div>
 
-        <CandidateAddPopup :visible="showAddPopup" :CandidateID="generateCandidateId()" @close="closeAddPopup" @submit="addCandidate"/>
-        <CandidateEditPopup :visible="showEditPopup" :candidate="selectedCandidate" @close="closeEditPopup" @submitEdit="editCandidate" />
     </div>
 
 </template>
@@ -418,7 +365,6 @@
     height: 20px;
     width: 20px;
     padding: 8px;
-    margin-right: 8px;
     border: 1px solid #e0e6ec;
     display: flex;
     align-items: center;
@@ -450,10 +396,6 @@
 .candidate-list .candidate-table thead {
     background-color: #f5f5f5;
     border-bottom: 2px solid #e0e0e0;
-}
-
-.candidate-table thead tr {
-    height: 48px;
 }
 
 .candidate-list .candidate-row {
@@ -538,7 +480,6 @@
 
 .app-page .app-page-right {
     gap: 12px;
-    margin-right: 16px;
 }
 
 .app-page-right .text-record {
@@ -546,7 +487,7 @@
 }
 
 .app-page-right .dropdown {
-    background-color: #ffffff;
+    /* padding: 8px 8px; */
     border: 1px solid #ccc;
     border-radius: 4px;
     cursor: pointer;
