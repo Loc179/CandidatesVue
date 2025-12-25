@@ -3,10 +3,13 @@
     import CandidateAddPopup from '@/views/candidate/CandidateAddPopup.vue';
     import CandidateEditPopup from '@/views/candidate/CandidateEditPopup.vue';
     // import BaseTable from '@/components/controls/BaseTable.vue';
-    import { GenderLabels, OfferStatusLabels, RecruitmentStatusLabels } from '@/configs/enums';
+    import RatingStar from './components/RatingStar.vue';
+    import { GenderLabels, OfferStatusLabels, RecruitmentStatusLabels } from '@/const/enums';
     import { useFormat } from '@/utils/format';
+    import { useToast } from '@/utils/useToast';
 
     const { formatDisplay, getInitialsFirstLast, formatDate, getAvatarColorFromName } = useFormat();
+    const {success} = useToast();
 
     const STORAGE_KEY = 'candidates';
     const candidates = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -56,16 +59,20 @@
     /* POPUP ADD CANDIDATE */
     const showAddPopup = ref(false)
 
+    // Mở popup thêm ứng viên
     const openAddPopup = () => {
         showAddPopup.value = true
     }
 
+    // Đóng popup thêm ứng viên
     const closeAddPopup = () => {
         showAddPopup.value = false
     }
 
+    // Thêm ứng viên mới vào danh sách
     const addCandidate = (newCandidate) => {
         candidatesData.value.unshift(newCandidate);
+        success("Thêm ứng viên thành công");
         localStorage.setItem(STORAGE_KEY, JSON.stringify(candidatesData.value))
         showAddPopup.value = false;
     }
@@ -75,15 +82,18 @@
     const showEditPopup = ref(false)
 
     const selectedCandidate = ref(null)
+    // Xử lý khi click chỉnh sửa ứng viên
     const handleEditClick = (candidate) => {
         selectedCandidate.value = { ...candidate }
         showEditPopup.value = true
     }
 
+    // Đóng popup chỉnh sửa ứng viên
     const closeEditPopup = () => {
         showEditPopup.value = false
     }
 
+    // Cập nhật thông tin ứng viên
     const editCandidate = (candidate) => {
         const index = candidatesData.value.findIndex(
             c => c.id === candidate.id
@@ -242,7 +252,10 @@
                                     <td>{{formatDisplay(c.JobPositionName)}}</td>
                                     <td>{{formatDisplay(c.RecruitmentName)}}</td>
                                     <td>{{formatDisplay(c.RecruitmentRoundName)}}</td>
-                                    <td>{{formatDisplay(c.Score)}}</td>
+                                    <!-- <td>{{formatDisplay(c.Score)}}</td> -->
+                                    <td>
+                                        <RatingStar :score="c.Score" />
+                                    </td>
                                     <td>{{formatDate(c.ApplyDate)}}</td>
                                     <td>{{formatDisplay(c.ChannelName)}}</td>
                                     <td>{{formatDisplay(c.EducationDegreeName)}}</td>
@@ -293,7 +306,7 @@
                                 <span class="start">{{ (currentPage - 1) * pageSize + 1 }}</span>
                                 <span> - </span>
                                 <span class="end">{{ endRecord }}</span>
-                                <span class="nowrap">bản ghi</span>
+                                <span class="nowrap"> bản ghi</span>
                             </div>
 
                             <div :class="['icon', 'icon-left', 'pointer', {disabled: currentPage==1}]" @click="prePage"></div>
@@ -448,12 +461,19 @@
 }
 
 .candidate-list .candidate-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     background-color: #f5f5f5;
     border-bottom: 2px solid #e0e0e0;
 }
 
 .candidate-table thead tr {
     height: 48px;
+}
+
+.candidate-table tbody tr {
+    z-index: 1;
 }
 
 .candidate-list .candidate-row {

@@ -84,6 +84,7 @@
         avatarFileInput.value.click();
     };
 
+    // Xử lý submit form thêm ứng viên
     const submitForm = () => {
         const errors = validateCandidate(candidate);
         if (errors) {
@@ -96,6 +97,15 @@
             FileCVID: cvFile.value,
             Avatar: avatarFile.value,
         })
+        candidate.CandidateID = null;
+        candidate.CandidateName = '';
+        candidate.Birthday = '';
+        candidate.Gender = '';
+        candidate.AreaName = '';
+        candidate.Mobile = '';
+        candidate.Email = '';
+        candidate.Address = '';
+        candidate.ApplyDate = '';
     }
 
 

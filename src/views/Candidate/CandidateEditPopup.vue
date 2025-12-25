@@ -21,11 +21,12 @@
     const avatarFile = ref(null);
     const avatarPreview = ref(null);
 
+    // Theo dõi thay đổi của prop candidate và cập nhật candidateData
     watch(
         () => props.candidate,
         (newVal) => {
             if (newVal) {
-            Object.assign(candidateData, newVal)
+                Object.assign(candidateData, newVal)
             }
         },
         { immediate: true }
@@ -61,6 +62,8 @@
         avatarFileInput.value.click();
     };
 
+
+    // Xử lý submit form chỉnh sửa ứng viên
     const submitFormEdit = () => {
         const errors = validateCandidate(candidateData);
         if (errors) {

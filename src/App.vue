@@ -1,7 +1,10 @@
 <script setup>
+    import BaseToast from './components/controls/BaseToast.vue';
     import TheHeader from './layouts/TheHeader.vue';
     import TheSidebar from './layouts/TheSidebar.vue';
-    // import CandidateList from '@/views/candidate/CandidateList.vue';
+    import { useToast } from './utils/useToast';
+
+    const { toasts } = useToast();
 </script>
 
 <template>
@@ -11,6 +14,7 @@
       <TheSidebar/>
       <div class="main-content flex">
         <router-view></router-view>
+        <BaseToast :toasts="toasts"></BaseToast>
       </div>
     </div>
   </div>

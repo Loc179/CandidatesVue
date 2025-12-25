@@ -1,6 +1,6 @@
 <script setup>
     import { ref } from 'vue';
-    import { sidebarItems } from '@/configs/sidebar';
+    import { sidebarItems } from '@/const/sidebar';
 
     const visible = ref(false);
 

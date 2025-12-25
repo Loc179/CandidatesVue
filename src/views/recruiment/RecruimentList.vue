@@ -1,9 +1,10 @@
 <script setup>
     import { ref, computed, watch } from 'vue';
     import { candidates } from '@/data/candidates';
-    // import { GenderLabels, OfferStatusLabels, RecruitmentStatusLabels } from '@/configs/enums';
+    import { GenderLabels } from '@/const/enums';
     import BaseTable from '@/components/controls/BaseTable.vue';
-    import { fieldsCandidate } from '@/configs/enums';
+    import RatingStar from '../candidate/components/RatingStar.vue';
+    import { fieldsCandidate } from '@/const/enums';
     import { useFormat } from '@/utils/format';
 
     const { formatDisplay, getInitialsFirstLast, getAvatarColorFromName } = useFormat();
@@ -101,100 +102,6 @@
                 </div>
                 <div class="candidate-list-container">
                     <div class="candidate-list">
-                        <!-- <table class="candidate-table" id="candidate-table-body">
-                            <thead>
-                                <tr>
-                                    <th style="width: 50px; text-align: center;">
-                                        <input v-model="selectAll" class="select-all select-checkbox" type="checkbox" title="Chọn tất cả">
-                                    </th>
-                                    <th>Họ và tên</th>
-                                    <th>Email</th>
-                                    <th>Số điện thoại</th>
-                                    <th>Chiến dịch tuyển dụng</th>
-                                    <th>Vị trí tuyển dụng</th>
-                                    <th>Tin tuyển dụng</th>
-                                    <th>Vòng tuyển dụng</th>
-                                    <th>Đánh giá</th>
-                                    <th>Ngày ứng tuyển</th>
-                                    <th>Nguồn ứng viên</th>
-                                    <th>Trình độ đào tạo</th>
-                                    <th>Nơi đào tạo</th>
-                                    <th>Chuyên ngành</th>
-                                    <th>Nơi làm việc gần đây</th>
-                                    <th>Nhân sự khai thác</th>
-                                    <th>Đơn vị sử dụng</th>
-                                    <th>Phù hợp với chân dung</th>
-                                    <th>Khu vực</th>
-                                    <th>Người giới thiệu</th>
-                                    <th>Thông tin tiếp nhận</th>
-                                    <th>Thuộc kho tiềm năng</th>
-                                    <th>Tài khoản cổng ứng viên</th>
-                                    <th>Thẻ</th>
-                                    <th>Trạng thái</th>
-                                    <th>Giới tính</th>
-                                    <th>Ngày sinh</th>
-                                    <th>Địa chỉ</th>
-                                    <th>Lý do loại</th>
-                                    <th>Cộng tác viên</th>
-                                    <th>Ngày tiếp nhận</th>
-                                    <th>Trạng thái mời nhận việc</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="c in displayCandidates" :class="['candidate-row', {'candidate-row-ticked': selectedIds.includes(c.CandidateID)}]" :key="c.CandidateID">
-                                    <td style="text-align:center">
-                                        <input :value="c.CandidateID" v-model="selectedIds" class="select-item" type="checkbox">
-                                    </td>
-                                    <td>
-                                        <div class="fullname">
-                                            <div class="avatar" :style="{ backgroundColor: getAvatarColorFromName(c.CandidateName) }">
-                                                {{getInitialsFirstLast(c.CandidateName)}}
-                                            </div>
-                                            <div>
-                                                {{formatDisplay(c.CandidateName)}}
-                                                <div v-if="c.IsEmployee" class="display-flex align-items-center" style="margin-top: 4px">
-                                                    <div class="icon icon-tick"></div>
-                                                    <div style="color: #4fbd5b; margin-left: 4px">Nhân viên</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{{formatDisplay(c.Email)}}</td>
-                                    <td>{{formatDisplay(c.Mobile)}}</td>
-                                    <td>{{formatDisplay(c.RecruitmentCampaignNames)}}</td>
-                                    <td>{{formatDisplay(c.JobPositionName)}}</td>
-                                    <td>{{formatDisplay(c.RecruitmentName)}}</td>
-                                    <td>{{formatDisplay(c.RecruitmentRoundName)}}</td>
-                                    <td>{{formatDisplay(c.Score)}}</td>
-                                    <td>{{formatDate(c.ApplyDate)}}</td>
-                                    <td>{{formatDisplay(c.ChannelName)}}</td>
-                                    <td>{{formatDisplay(c.EducationDegreeName)}}</td>
-                                    <td>{{formatDisplay(c.EducationPlaceName)}}</td>
-                                    <td>{{formatDisplay(c.EducationMajorName)}}</td>
-                                    <td>{{formatDisplay(c.WorkPlaceRecent)}}</td>
-                                    <td>{{formatDisplay(c.AttractivePersonnel)}}</td>
-                                    <td>{{formatDisplay(c.OrganizationUnitName)}}</td>
-                                    <td>{{formatDisplay(c.AreaName)}}</td>
-                                    <td>{{formatDisplay(c.PresenterName)}}</td>
-                                    <td>{{formatDisplay(c.ProbationInfoStatus)}}</td>
-                                    <td>{{formatDisplay(c.ProbationInfoStatus)}}</td>
-                                    <td>{{formatDisplay(c.IsTalentPoolDetail)}}</td>
-                                    <td>{{formatDisplay(c.AccountPortal)}}</td>
-                                    <td>{{formatDisplay(c.TagInfos)}}</td>
-                                    <td>{{RecruitmentStatusLabels[c.CandidateStatusID] || '--'}}</td>
-                                    <td>{{GenderLabels[c.Gender] || '--'}}</td>
-                                    <td>{{formatDate(c.Birthday)}}</td>
-                                    <td>{{formatDisplay(c.Address)}}</td>
-                                    <td>{{formatDisplay(c.ReasonRemoved)}}</td>
-                                    <td>{{formatDisplay(c.CollaboratorName)}}</td>
-                                    <td>{{formatDate(c.HireDate)}}</td>
-                                    <td>{{OfferStatusLabels[c.OfferStatus] || '--'}}</td>
-                                    <td class="row-edit-btn">
-                                        <div class="icon icon-edit pointer" @click="handleEditClick(c)"></div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> -->
                         
                         <BaseTable
                             :fields="fields"
@@ -219,6 +126,12 @@
                                         </div>
                                     </div>
                                 </div>
+                            </template>
+                            <template #Gender="{ value }">
+                                {{ GenderLabels[value] || '--' }}
+                            </template>
+                            <template #Score="{value}">
+                                <RatingStar :score="value" />
                             </template>
                         </BaseTable>
                     </div>

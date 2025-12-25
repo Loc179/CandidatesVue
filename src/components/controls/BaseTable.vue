@@ -115,6 +115,7 @@ const handleDelete = (row) => {
 <style scoped>
 .ms-table {
   width: 100%;
+  height: 100%;
   overflow-x: auto;
   position: relative;
 }

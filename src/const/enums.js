@@ -1,7 +1,7 @@
 export const Gender = {
   FEMALE: 0,
   MALE: 1,
-  OTHER: 2
+  OTHER: -1
 };
 
 export const GenderLabels = {
@@ -88,7 +88,7 @@ export const fieldsCandidate = [
   {
     key: 'Score',
     label: 'Đánh giá',
-    type: 'number',
+    type: 'custom',
   },
   {
     key: 'ApplyDate',

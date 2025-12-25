@@ -328,9 +328,30 @@
 }
 
 .icon-otherlink-trans {
+    mask-position: -255px -64px;
     width: 16px;
     height: 16px;
     min-width: 16px;
-    mask-position: -255px -64px;
     background-color: #212121;
+}
+
+.icon-success {
+    background-position: -109px -826px;
+    width: 12px;
+    height: 12px;
+    transform: scale(1.7);
+}
+
+.icon-error {
+    background-position: -145px -633px;
+    width: 16px;
+    height: 16px;
+    transform: scale(1.5);
+}
+
+.icon-warning {
+    background-position: -195px -635px;
+    width: 15px;
+    height: 13px;
+    transform: scale(1.7);
 }
